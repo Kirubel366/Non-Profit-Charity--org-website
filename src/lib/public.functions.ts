@@ -78,7 +78,7 @@ export const submitVolunteerApplication = createServerFn({ method: "POST" })
       availability: data.availability,
       motivation: data.motivation,
       cv_url: data.cv_url,
-      status: "Pending",
+      status: "New",
     };
 
     const supabaseAdmin = await getSupabaseAdmin();

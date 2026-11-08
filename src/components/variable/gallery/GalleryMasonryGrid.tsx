@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Expand } from "lucide-react";
 
 import type { GalleryData, GalleryItem } from "@/types/schema";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { orgContent } from "@/data/orgContent";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export function GalleryMasonryGrid({ data }: { data: GalleryData }) {
   const [active, setActive] = useState<GalleryItem | null>(null);
@@ -51,10 +50,6 @@ export function GalleryMasonryGrid({ data }: { data: GalleryData }) {
                 <span className="rounded-badge bg-trust-500/10 px-2.5 py-1 text-xs font-semibold text-trust-600">
                   {active.categoryTag}
                 </span>
-                <DialogTitle className="mt-3 text-lg">{active.title}</DialogTitle>
-                <DialogDescription className="mt-1 text-sm">
-                  Photographed on location by the {orgContent.navbar.orgName} field team.
-                </DialogDescription>
               </div>
             </div>
           )}

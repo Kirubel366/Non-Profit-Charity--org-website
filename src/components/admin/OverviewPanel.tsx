@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getDonationNotificationCount } from "./donationCounts";
 import { PanelHeader, LoadingRows, formatDateTime, StatusPill } from "./primitives";
 import type { AdminTab } from "./AdminShell";
 
@@ -26,18 +27,18 @@ export function useAdminCounts() {
     queryKey: ["admin", "counts"],
     queryFn: async (): Promise<Partial<Record<AdminTab, number>>> => {
       const head = { count: "exact" as const, head: true };
-      const [volunteers, inquiries, materials, receipts, events, gallery] = await Promise.all([
+      const [volunteers, inquiries, materials, transferProofs, events, gallery] = await Promise.all([
         supabase.from("volunteer_applications").select("id", head).eq("status", "New"),
         supabase.from("contact_messages").select("id", head).eq("is_read", false),
         supabase.from("material_donations").select("id", head).eq("status", "Pending"),
-        supabase.from("transfer_receipts").select("id", head).eq("status", "Pending"),
+        supabase.from("transfer_proofs").select("id", head).eq("status", "Pending"),
         supabase.from("events").select("id", head),
         supabase.from("gallery_items").select("id", head),
       ]);
       return {
         volunteers: volunteers.count ?? 0,
         inquiries: inquiries.count ?? 0,
-        donations: (materials.count ?? 0) + (receipts.count ?? 0),
+        donations: getDonationNotificationCount(materials.count ?? 0, transferProofs.count ?? 0),
         events: events.count ?? 0,
         gallery: gallery.count ?? 0,
       };

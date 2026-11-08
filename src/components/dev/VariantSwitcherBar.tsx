@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Layers, RotateCcw, X } from "lucide-react";
+import { Check, ChevronDown, Copy, Layers, RotateCcw, X } from "lucide-react";
 import {
+  getVariantCleanupPrompt,
   useVariants,
   variantCatalog,
   type VariantState,
@@ -13,7 +14,21 @@ const categories = Object.keys(variantCatalog) as Array<keyof VariantState>;
 
 export function VariantSwitcherBar() {
   const [open, setOpen] = useState(false);
+  const [finalizeOpen, setFinalizeOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { variants, setVariant, resetToDefaults } = useVariants();
+
+  const finalizeText = useMemo(() => getVariantCleanupPrompt(variants), [variants]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(finalizeText);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {
+      // fallback: ignore clipboard permissions in restricted environments
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-[100] print:hidden">
@@ -90,6 +105,53 @@ export function VariantSwitcherBar() {
                   </div>
                 );
               })}
+
+              <div className="space-y-2 border-t border-border pt-3">
+                <button
+                  type="button"
+                  onClick={() => setFinalizeOpen((previous) => !previous)}
+                  className="flex w-full items-center justify-between rounded-md border border-input bg-background px-2.5 py-2 text-left text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:bg-accent"
+                >
+                  <span>Finalize</span>
+                  <ChevronDown
+                    className={cn("size-3.5 transition-transform", finalizeOpen && "rotate-180")}
+                    aria-hidden
+                  />
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {finalizeOpen ? (
+                    <motion.div
+                      key="finalize-panel"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="rounded-md border border-border bg-secondary/20 p-2.5">
+                        <textarea
+                          readOnly
+                          value={finalizeText}
+                          className="min-h-[140px] w-full resize-none bg-transparent text-[11px] leading-relaxed text-foreground outline-none"
+                        />
+                        <div className="mt-2 flex justify-end">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleCopy}
+                            className="gap-1.5"
+                          >
+                            {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                            {copied ? "Copied" : "Copy"}
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
         ) : (

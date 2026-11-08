@@ -151,9 +151,6 @@ export function AdminLogin() {
           ) : null}
         </div>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Access is restricted to accounts holding the administrator role.
-        </p>
       </div>
     </main>
   );
